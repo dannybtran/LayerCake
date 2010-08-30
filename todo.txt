@@ -1,0 +1,1 @@
+* Coordinate system is not right.  A subview's local coordinates should automatically be adjusted to the global system for drawing.
