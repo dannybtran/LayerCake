@@ -2,27 +2,41 @@
   Class: Point
   An object that has x and y parameters.
 */
-
-/* 
-  Constructor: Point 
-  Create and return a Point object.
+var Point = Class.extend({
+  /* 
+    Constructor: Point 
+    Create and return a Point object.
   
-  Parameters:
-    x - a number
-    y - a number
-*/
-var Point = function(x,y) {
-  /*
-    Variable: x
-    The x coordinate of the point
+    Parameters:
+      x - a number
+      y - a number
   */
-  this.x = x;
+  init: function(x,y) {
+    /*
+      Variable: x
+      The x coordinate of the point
+    */
+    this.x = x;
 
-  /*
-    Variable: y
-    The y coordinate of the point
-  */  
-  this.y = y;
+    /*
+      Variable: y
+      The y coordinate of the point
+    */  
+    this.y = y;
+  },
   
-  return this;
-}
+  /*
+    Function: (Boolean)equals
+    Determines if two points are equal
+    
+    Parameters:
+      p - A <Point>
+    
+    Returns:
+      Boolean
+  */
+  equals: function(p) {
+    if (this.x == p.x && this.y == p.y) return true;
+    return false;
+  }
+});

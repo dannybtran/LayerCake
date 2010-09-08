@@ -3,7 +3,7 @@
 <head>
   <title>LayerCake Example</title>
   <style>
-    html,body { padding: 0px; margin: 0px; height: 700px; width: 900px; background-color: #EEE; }
+    html,body { padding: 0px; margin: 0px; width: 100%; background-color: #EEE; }
     div       { margin-left: auto; margin-right: auto; width: 700px; }
     canvas    { background-color: #FFF; }
   </style>  
@@ -11,12 +11,19 @@
 <body>
 
 <div>
-<canvas height="700px" width="900px" id="main">
+<canvas height="500px" width="700px" id="main">
   Please use a browser that supports canvas.
 </canvas>
 </div>
 
-<script src="layercake-current.min.js"></script>
+<!--<script src="layercake-current.min.js"></script>-->
+<script src="src/Class.js"></script>
+<script src="src/LayerCake.js"></script>
+<script src="src/Point.js"></script>
+<script src="src/View.js"></script>
+<script src="src/RootView.js"></script>
+<script src="src/RectView.js"></script>
+<script src="src/ImageView.js"></script>
 <script>
   (function() { 
     var canvas = document.getElementById("main");
@@ -27,7 +34,15 @@
   
     var r2 = new RectView(10,10,30,30);
     r2.fillStyle = '#F00';
-  
+    r2.mouseover = function(event) {
+      r2.fillStyle = '#FF0';
+      r2.rootview.draw();
+    };
+    r2.mouseout = function(event) {
+      r2.fillStyle = '#F00';
+      r2.rootview.draw();      
+    }
+    
     var r3 = new RectView(60,10,30,30);
     r3.fillStyle = '#0F0';
   
@@ -49,7 +64,26 @@
     r1.addSubview(r3);  
     r1.addSubview(r4);    
     r1.addSubview(r5);     
-    root.addSubview(r1);   
+    root.addSubview(r1);
+    
+    var i1 = new ImageView("images/buzzjessie.jpg",100,100,130,98);
+    i1.draggable = true;
+    i1.clickable = true;
+    i1.click = function(event) {
+      alert('you clicked an image')
+    }
+    
+    var r6 = new RectView(10,10,30,30);
+    r6.fillStyle = '#00F';
+    r6.clickable = true;
+    r6.click = function(event) {
+      alert('You clicked square #6!');
+    };
+
+    i1.addSubview(r6);
+    console.log(i1);
+    root.addSubview(i1);
+    
     root.draw();
   })();
 </script>

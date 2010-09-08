@@ -92,78 +92,169 @@ var View = Class.extend({
     */
     this.isMouseDown = false;
 
+    /*
+      Variable: (Boolean) isRoot
+      Returns true if the current view is the rootview.
+    */
+    this.isRoot = false;
+    
     this._dragOrigin;
     this._dragPoint;
+    this._mouseDownOrigin;
+    this._mousedOver = false;
+    this._mousedOut = true;    
   },
   
   /* PRIVATE METHODS */
-  
+
+  /*
+    _relate: Recursive method, called by addSubview and relates target views to superviews.
+    Passing through the rootview, canvas, ctx and superview values.
+  */
   _relate : function(view,superview) {
     view.rootview = (superview.isRoot == true) ? superview : superview.rootview;   
-    view.canvas = superview.canvas;
-    view.ctx = superview.ctx;       
-    view.superview = superview;
+    view.superview = superview;    
+    view.canvas = superview.canvas; 
+    view.ctx = superview.ctx; 
     for(var k in view.subviews) { view.subviews[k]._relate(view.subviews[k],view); }
     return view;
   },
+  
+  /*
+    _draw : Recursively draws all subviews
+  */  
   _draw : function() {
-    if (!this.isRoot) this.draw();
+    this.draw();
     for(var k in this.subviews) { if (this.subviews[k].visible) this.subviews[k]._draw(); }
   },
+
+  /*
+    _click : Recursively calls _click on all subviews.  If the subview returns true, end the loop.
+    If view is clickable, hasn't been dragged, and the mouse point is "in the view" (determined
+    by overriden pointInView methods) it calls the click handler and returns true.
+  */  
   _click : function(event) {
-    for(var k in this.subviews) {
+    for(var k = this.subviews.length - 1; k >= 0; k--) {
       if (this.subviews[k]._click(event))
-        return;
+        return true;
     }
-    if (this.pointInView(new Point(event.clientX,event.clientY)) && this.clickable) {
-      this.click(event);
+
+    if (this.pointInView(new Point(event.clientX,event.clientY))) {
+      if (  this.clickable &&
+            this._mouseDownOrigin.equals(this.convertPointToWindow(this.origin))
+      ) {
+        this._mouseDownOrigin = null;
+        this.click(event);
+      }
       return true;
     } else {
       return false;
     }
   },
+  
+  /*
+    _mousedown : Recursively calls _mousedown on all subviews.  If the subview returns true, end the loop.
+    If view is draggable and the mouse point is "in the view" (determined by overriden pointInView methods) 
+    it calls the mousedown handler and starts the drag process.
+  */   
   _mousedown : function(event) {
-    for(var k in this.subviews) {
+    for(var k = this.subviews.length - 1; k >= 0; k--) {
       if (this.subviews[k]._mousedown(event))
-        return;
+        return true;
     }    
     
-    if (this.draggable && this.pointInView(new Point(event.clientX,event.clientY))) {      
+    if (this.pointInView(new Point(event.clientX,event.clientY))) {      
+      this._mouseDownOrigin = this.convertPointToWindow(this.origin);      
       this.mousedown(event);
-      if (this.draggable && !this.isDragging) this._startDrag(event);      
-      return true;
+      if (this.draggable && !this.isDragging) {
+        this._startDrag(event);      
+        return true;
+      } else
+        return false;
     } else {
       return false;
     }
   },
+  
+  /*
+    _mouseup : Recursively calls _mouseup on all subviews.  If the subview returns true, end the loop.
+    Calls mouseup handler and if view is dragging, stops dragging.
+  */     
   _mouseup : function(event) {
     for(var k in this.subviews) {
       if (this.subviews[k]._mouseup(event))
-        return;
+        return false;
     }        
+        
     this.mouseup(event);
     if (this.isDragging) this._stopDrag(event);      
     return false;
   },  
-  _mousemove : function(event) {
-    for(var k in this.subviews) {
-      if (this.subviews[k]._mousemove(event))
-        return;
-    }        
-    if (this.pointInView(new Point(event.clientX,event.clientY)))
-      this.mousemove(event);    
+  
+  /*
+    _mousemove : If view is dragging, move view relative to _dragPoint. Recursively calls _mousemove on all
+    subviews.  If the subview returns true, end the loop. If mouse point is in view and view is not moused over
+    call mouseover.  Else if the mouse point is not in the view and view has not been moused out, call mouseout.
+    Set flags.
+  */     
+  _mousemove : function(event) {      
+
     if (this.isDragging) {
       var delta = new Point(event.clientX - this._dragPoint.x , event.clientY - this._dragPoint.y);
       this.origin = new Point(this._dragOrigin.x + delta.x , this._dragOrigin.y + delta.y);
       this.rootview.draw();
+      return true;
     }
+
+    for(var k in this.subviews) {
+      if (this.subviews[k]._mousemove(event))
+        return false;
+    }      
+    
+    if (this.pointInView(new Point(event.clientX,event.clientY))) {
+      this.mousemove(event);    
+      if (!this._mousedOver) {
+        this._mousedOver = true;
+        this._mousedOut = false;
+        this._mouseover(event);
+      }
+    } else {
+      if (!this._mousedOut) {
+        this._mousedOver = false;
+        this._mousedOut = true;
+        this._mouseout(event);        
+      }
+    }
+    
     return false;
   },
+  
+  /*
+    _mouseover : call mouseover handler
+  */
+  _mouseover : function(event) {
+    this.mouseover(event);
+  },
+  
+  /*
+    _mouseout : call _mouseout handler
+  */
+  _mouseout : function(event) {
+    this.mouseout(event);
+  },
+  
+  /*
+    _startDrag : Note the dragPoint and dragOrigin and start the drag process
+  */
   _startDrag : function(event) {
     this._dragOrigin = this.origin;
     this._dragPoint = new Point(event.clientX,event.clientY);
     this.isDragging = true;
   },
+
+  /*
+    _stopDrag : Stop the drag process
+  */
   _stopDrag : function(event) {
     this.isDragging = false;
   },
@@ -258,6 +349,36 @@ var View = Class.extend({
     
   */    
   mousemove : function(event) { }, 
+
+  /*
+    Function: (delegate) mouseover
+    
+    Called when a canvas mouseover event has been fired and the coordinates are in this view.
+    Override this method.
+
+    Parameters:
+      event - An event
+      
+    Returns:
+      void
+    
+  */  
+  mouseover : function(event) { },
+  
+  /*
+    Function: (delegate) mouseout
+    
+    Called when a canvas mouseout event has been fired and the coordinates are in this view.
+    Override this method.
+
+    Parameters:
+      event - An event
+      
+    Returns:
+      void
+    
+  */  
+  mouseout : function(event) { },
   
   /*
     Function: (Boolean) pointInView
@@ -282,7 +403,7 @@ var View = Class.extend({
       view - The target view
       
     Returns:
-      A Point object
+      A <Point> object
   */
   convertPointToView : function(p,view) {
     var v = this;
@@ -305,7 +426,7 @@ var View = Class.extend({
       p - A point
       
     Returns:
-      A Point object
+      A <Point> object
   */
   convertPointToWindow : function(p) {
     var np = this.convertPointToView(p,this.rootview);
