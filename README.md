@@ -24,7 +24,7 @@ Draw the rootview:
 
     root.draw();
 
-For more detail see the examples:
+For more detail see the examples:  
 [Example 1](http://dannytran.me/layercake/example1.html)  
 [Example 2](http://dannytran.me/layercake/example2.html)
 
