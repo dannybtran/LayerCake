@@ -31,7 +31,6 @@ For more detail see the examples:
 For documentation:  
 [Documentation](http://dannytran.me/layercake/dox/)  
 
-Copyright (c) 2010 Danny Tran
-MIT License
+Copyright (c) 2010 Danny Tran  
+MIT License  
 http://www.opensource.org/licenses/mit-license.php
-
