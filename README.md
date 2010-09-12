@@ -1,6 +1,6 @@
 LayerCake: Javascript Library
 =============================
-[http://www.dannytran.me/layercake/](http://www.dannytran.me/layercake/)
+[http://dannytran.me/layercake/](http://www.dannytran.me/layercake/)
 
 Creating clickable/draggable elements on the canvas is easy.
 
@@ -26,7 +26,10 @@ Draw the rootview:
 
 For more detail see the examples:  
 [Example 1](http://dannytran.me/layercake/example1.html)  
-[Example 2](http://dannytran.me/layercake/example2.html)
+[Example 2](http://dannytran.me/layercake/example2.html)  
+
+For documentation:  
+[Documentation](http://dannytran.me/layercake/dox/)  
 
 Copyright (c) 2010 Danny Tran
 MIT License
