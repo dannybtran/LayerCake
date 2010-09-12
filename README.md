@@ -1,6 +1,6 @@
 LayerCake: Javascript Library
 =============================
-(http://www.dannytran.me/layercake/)
+[http://www.dannytran.me/layercake/](http://www.dannytran.me/layercake/)
 
 Creating clickable/draggable elements on the canvas is easy.
 
