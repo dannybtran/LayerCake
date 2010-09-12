@@ -1,6 +1,12 @@
 /*
+  Copyright (c) 2010 Danny Tran
+  MIT License
+  http://www.opensource.org/licenses/mit-license.php
+*/
+
+/*
   Class: View
-  The base class for displayable sections in LayerCake.  Extend this class to create your own custom view.
+  The base class for displayable sections in LayerCake.
 */
 var View = Class.extend({
   
@@ -18,7 +24,7 @@ var View = Class.extend({
       Variable: (Number) id
       An auto_incremented id
     */
-    this.id = LayerCake['next_view_id']++;
+    this.id = LayerCake.auto_increment();
     
     /*
       Variable: (Point) origin
@@ -91,12 +97,6 @@ var View = Class.extend({
       Returns true if mousedown and not mouseup has been called on the current view.
     */
     this.isMouseDown = false;
-
-    /*
-      Variable: (Boolean) isRoot
-      Returns true if the current view is the rootview.
-    */
-    this.isRoot = false;
     
     this._dragOrigin;
     this._dragPoint;
@@ -112,7 +112,7 @@ var View = Class.extend({
     Passing through the rootview, canvas, ctx and superview values.
   */
   _relate : function(view,superview) {
-    view.rootview = (superview.isRoot == true) ? superview : superview.rootview;   
+    view.rootview = (superview instanceof RootView) ? superview : superview.rootview;   
     view.superview = superview;    
     view.canvas = superview.canvas; 
     view.ctx = superview.ctx; 
@@ -121,11 +121,10 @@ var View = Class.extend({
   },
   
   /*
-    _draw : Recursively draws all subviews
+    _drawSubviews : Recursively draws all subviews
   */  
-  _draw : function() {
-    this.draw();
-    for(var k in this.subviews) { if (this.subviews[k].visible) this.subviews[k]._draw(); }
+  _drawSubviews : function() {
+    for(var k in this.subviews) { if (this.subviews[k].visible) this.subviews[k].draw(); }
   },
 
   /*
@@ -134,23 +133,30 @@ var View = Class.extend({
     by overriden pointInView methods) it calls the click handler and returns true.
   */  
   _click : function(event) {
+    if (!this.visible) return false;
+    
     for(var k = this.subviews.length - 1; k >= 0; k--) {
       if (this.subviews[k]._click(event))
         return true;
     }
 
-    if (this.pointInView(new Point(event.clientX,event.clientY))) {
-      if (  this.clickable &&
-            this._mouseDownOrigin.equals(this.convertPointToWindow(this.origin))
-      ) {
-        this._mouseDownOrigin = null;
-        this.click(event);
-      }
-      return true;
-    } else {
+    if (!this.pointInView(new Point(event.clientX,event.clientY))) 
       return false;
+      
+    if (this._clickableMouseHasNotMoved()) {
+      this._mouseDownOrigin = null;
+      this._clickHandler(event);
     }
+    
+    return true;
   },
+  
+  _clickableMouseHasNotMoved : function() {
+    if (!this._mouseDownOrigin) return false;
+    return this.clickable && this._mouseDownOrigin.equals(this.convertPointToWindow(this.origin));
+  },
+  
+  _clickHandler : function(event) { },
   
   /*
     _mousedown : Recursively calls _mousedown on all subviews.  If the subview returns true, end the loop.
@@ -158,38 +164,48 @@ var View = Class.extend({
     it calls the mousedown handler and starts the drag process.
   */   
   _mousedown : function(event) {
+    if (!this.visible) return false;
+    
     for(var k = this.subviews.length - 1; k >= 0; k--) {
       if (this.subviews[k]._mousedown(event))
         return true;
     }    
     
-    if (this.pointInView(new Point(event.clientX,event.clientY))) {      
-      this._mouseDownOrigin = this.convertPointToWindow(this.origin);      
-      this.mousedown(event);
-      if (this.draggable && !this.isDragging) {
-        this._startDrag(event);      
-        return true;
-      } else
-        return false;
-    } else {
+    if (!this.pointInView(new Point(event.clientX,event.clientY)))
       return false;
-    }
+      
+    this._mouseDownOrigin = this.convertPointToWindow(this.origin);      
+    this._mousedownHandler(event);
+    
+    if (!this.draggable || this.isDragging)
+      return false;
+    
+    this._startDrag(event);      
+    return true;
   },
+  
+  _mousedownHandler : function(event) { },
   
   /*
     _mouseup : Recursively calls _mouseup on all subviews.  If the subview returns true, end the loop.
     Calls mouseup handler and if view is dragging, stops dragging.
   */     
   _mouseup : function(event) {
+    if (!this.visible) return false;
+    
     for(var k in this.subviews) {
       if (this.subviews[k]._mouseup(event))
         return false;
     }        
         
-    this.mouseup(event);
+    this._mouseupHandler(event);
+    
     if (this.isDragging) this._stopDrag(event);      
+    
     return false;
   },  
+  
+  _mouseupHandler : function(event) { },
   
   /*
     _mousemove : If view is dragging, move view relative to _dragPoint. Recursively calls _mousemove on all
@@ -198,7 +214,8 @@ var View = Class.extend({
     Set flags.
   */     
   _mousemove : function(event) {      
-
+    if (!this.visible) return false;
+    
     if (this.isDragging) {
       var delta = new Point(event.clientX - this._dragPoint.x , event.clientY - this._dragPoint.y);
       this.origin = new Point(this._dragOrigin.x + delta.x , this._dragOrigin.y + delta.y);
@@ -212,36 +229,42 @@ var View = Class.extend({
     }      
     
     if (this.pointInView(new Point(event.clientX,event.clientY))) {
-      this.mousemove(event);    
-      if (!this._mousedOver) {
-        this._mousedOver = true;
-        this._mousedOut = false;
+      this._mousemoveHandler(event);    
+      if (!this._mousedOver)
         this._mouseover(event);
-      }
+      //return true;
     } else {
-      if (!this._mousedOut) {
-        this._mousedOver = false;
-        this._mousedOut = true;
-        this._mouseout(event);        
-      }
+      if (!this._mousedOut)
+        this._mouseout(event);
     }
     
     return false;
   },
   
+  _mousemoveHandler : function(event) { },
+  
   /*
     _mouseover : call mouseover handler
   */
   _mouseover : function(event) {
-    this.mouseover(event);
+    //this.rootview.map(function() { this._mouseout(event); });
+    this._mousedOver = true;
+    this._mousedOut = false;    
+    this._mouseoverHandler(event);
   },
+  
+  _mouseoverHandler : function(event) { },
   
   /*
     _mouseout : call _mouseout handler
   */
   _mouseout : function(event) {
-    this.mouseout(event);
+    this._mousedOver = false;
+    this._mousedOut = true;    
+    this._mouseoutHandler(event);
   },
+  
+  _mouseoutHandler : function(event) { },
   
   /*
     _startDrag : Note the dragPoint and dragOrigin and start the drag process
@@ -273,112 +296,125 @@ var View = Class.extend({
       void
   */
   addSubview : function(view) {
-    if (!(view instanceof View))
-      throw("Parameter must be of or extend class View")
     view = this._relate(view,this);
     this.subviews.push(view);
   },  
   
   /*
+    Function: (boolean) removeSubview
+    
+    Removes a subview from the current view
+    
+    Parameters:
+      view - the subview to be removed
+    
+    Returns:
+      True if the view was successfully removed.  False if the view was not found.
+  */  
+  removeSubview : function(view) {
+    for(var k = 0; k < this.subviews.length; k++) {
+      if (view.id == this.subviews[k].id) {
+        this.subviews.splice(k,1);
+        return true;
+      }
+    }
+    return false;
+  },
+  
+  /*
     Function: (void) draw
     
-    Draws the current view.  It's probably best not to call draw on a subview, 
-    but instead call it on the rootview. e.g. this.rootview.draw();  Override draw()
-    when extending View.
+    Draws the current view.  It's probably best not to call draw directly on a subview, 
+    but instead call it on the rootview. e.g. this.rootview.draw();
+    
+    Override draw() when extending View.  Make sure to include a call to
+    this._drawSubviews() if you want the subviews to be drawn.
     
     Returns:
       void
   */  
-  draw : function() { },  
+  draw : function() { this._drawSubviews(); },  
   
   /*
-    Function: (delegate) click
+    Function: (void) click
     
-    Called when a canvas click event has been fired and the coordinates are in this view.  
-    Override this method.
+    Assigns the callback function for click events.
 
     Parameters:
-      event - An event
+      foo - A function that accepts an 'event' parameter
       
     Returns:
       void
   */
-  click : function(event) { },  
+  click : function(foo) { 
+    this.clickable = true;
+    this._clickHandler = foo; 
+  },  
   
   /*
-    Function: (delegate) mousedown
+    Function: (void) mousedown
     
-    Called when a canvas mousedown event has been fired and the coordinates are in this view.
-    Override this method.
-
+    Assigns the callback function for mousedown events.
+    
     Parameters:
-      event - An event
+      foo - A function that accepts an 'event' parameter
       
     Returns:
       void
-    
   */  
-  mousedown : function(event) { },  
+  mousedown : function(foo) { this._mousedownHandler = foo; },  
   
   /*
-    Function: (delegate) mouseup
+    Function: (void) mouseup
     
-    Called when a canvas mouseup event has been fired and the coordinates are in this view.
-    Override this method.
-
+    Assigns the callback function for mouseup events.
+    
     Parameters:
-      event - An event
+      foo - A function that accepts an 'event' parameter
       
     Returns:
       void
-    
   */    
-  mouseup : function(event) { },  
+  mouseup : function(foo) { this._mouseupHandler = foo; },  
 
   /*
-    Function: (delegate) mousemove
+    Function: (void) mousemove
     
-    Called when a canvas mousemove event has been fired and the coordinates are in this view.
-    Override this method.
-
+    Assigns the callback function for mousemove events.
+    
     Parameters:
-      event - An event
+      foo - A function that accepts an 'event' parameter
       
     Returns:
       void
-    
   */    
-  mousemove : function(event) { }, 
+  mousemove : function(foo) { this._mousemoveHandler = foo; }, 
 
   /*
-    Function: (delegate) mouseover
+    Function: (void) mouseover
     
-    Called when a canvas mouseover event has been fired and the coordinates are in this view.
-    Override this method.
-
+    Assigns the callback function for mouseover events.
+    
     Parameters:
-      event - An event
+      foo - A function that accepts an 'event' parameter
       
     Returns:
       void
-    
   */  
-  mouseover : function(event) { },
+  mouseover : function(foo) { this._mouseoverHandler = foo; },
   
   /*
-    Function: (delegate) mouseout
+    Function: (void) mouseout
     
-    Called when a canvas mouseout event has been fired and the coordinates are in this view.
-    Override this method.
+    Assigns the callback function for mouseout events.
 
     Parameters:
-      event - An event
+      foo - A function that accepts an 'event' parameter
       
     Returns:
       void
-    
   */  
-  mouseout : function(event) { },
+  mouseout : function(foo) { this._mouseoutHandler = foo; },
   
   /*
     Function: (Boolean) pointInView
@@ -420,7 +456,7 @@ var View = Class.extend({
     Function: (Point) convertPointToWindow
     
     Convert a point from the current view's coordinate space to the coordinate space of the browser window.  
-    This takes into account the position of the canvas tag within the browser.
+    This takes into account the position of the canvas tag within the browser as well as scroll coordinates.
     
     Parameters:
       p - A point
@@ -430,6 +466,28 @@ var View = Class.extend({
   */
   convertPointToWindow : function(p) {
     var np = this.convertPointToView(p,this.rootview);
-    return new Point(np.x + this.canvas.offsetLeft, np.y + this.canvas.offsetTop);
+    //TODO: X-browser check this
+    return new Point(np.x + this.canvas.offsetLeft - window.scrollX, 
+      np.y + this.canvas.offsetTop - window.scrollY);
+  },
+  
+  /*
+    Function: (void) map
+    
+    Call a function on all recursive subviews of the current view.
+    
+    Parameters:
+      foo - a function
+      
+    Returns:
+      void
+  */  
+  map : function(foo) {
+    for(var k in this.subviews)
+      this.subviews[k].map(foo)
+    // give the foo function access to 'this' scope
+    this.tempFoo = foo; 
+    this.tempFoo();
+    this.tempFoo = null;
   }
 });

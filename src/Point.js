@@ -1,4 +1,10 @@
 /*
+  Copyright (c) 2010 Danny Tran
+  MIT License
+  http://www.opensource.org/licenses/mit-license.php
+*/
+
+/*
   Class: Point
   An object that has x and y parameters.
 */

@@ -1,8 +1,13 @@
 /*
+  Copyright (c) 2010 Danny Tran
+  MIT License
+  http://www.opensource.org/licenses/mit-license.php
+*/
+
+/*
   Class: RootView
-  A singleton <View> that is returned by the <LayerCake> master object.  
-  All views must be a subview of RootView to be drawn to the canvas.
-  RootView has the same interface as <View>.
+  A singleton subclass of <View> that is returned by the <LayerCake> master object.  
+  All views must be a subview of RootView to be drawn to the canvas. See <View> for interface.
 */
 
 var RootView = View.extend({
@@ -11,45 +16,42 @@ var RootView = View.extend({
 
       this.canvas = canvas;
       this.ctx = canvas.getContext("2d"); 
-
-      this.isRoot = true;
-      this.canvas.addEventListener('click',this.click,true);
-      this.canvas.addEventListener('mousedown',this.mousedown,true);
-      this.canvas.addEventListener('mouseup',this.mouseup,true);      
-      this.canvas.addEventListener('mousemove',this.mousemove,true);      
-    },
-    _draw : function() {
-      for(var k in this.subviews) { if (this.subviews[k].visible) this.subviews[k]._draw(); }      
+      
+      var self = this;
+      this.canvas.addEventListener('click',(function(event) { return self.click(event); }),true);
+      this.canvas.addEventListener('mousedown',(function(event) { return self.mousedown(event); }),true);
+      this.canvas.addEventListener('mouseup',(function(event) { return self.mouseup(event); }),true);  
+      this.canvas.addEventListener('mousemove',(function(event) { return self.mousemove(event); }),true);
     },
     draw : function() {
-      this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
-      this._draw();
+      this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);      
+      if(!this.visible) return;
+      for(var k in this.subviews) { 
+        if (this.subviews[k].visible) 
+          this.subviews[k].draw(); 
+      }      
     },
     click : function(event) {
-      var root = LayerCake.get_root();
-      for(var k = root.subviews.length - 1; k >= 0; k--) {
-        if (root.subviews[k]._click(event))
+      for(var k = this.subviews.length - 1; k >= 0; k--) {
+        if (this.subviews[k]._click(event))
           return;
       }
     },
     mousedown : function(event) {
-      var root = LayerCake.get_root();
-      for(var k = root.subviews.length - 1; k >= 0; k--) {
-        if (root.subviews[k]._mousedown(event))
+      for(var k = this.subviews.length - 1; k >= 0; k--) {
+        if (this.subviews[k]._mousedown(event))
           return;
       }
     },
     mouseup : function(event) {
-      var root = LayerCake.get_root();
-      for(var k in root.subviews) {
-        if (root.subviews[k]._mouseup(event))
+      for(var k = this.subviews.length - 1; k >= 0; k--) {
+        if (this.subviews[k]._mouseup(event))
           return;
       }
     },    
     mousemove : function(event) {
-      var root = LayerCake.get_root();
-      for(var k in root.subviews) {
-        if (root.subviews[k]._mousemove(event))
+      for(var k = this.subviews.length - 1; k >= 0; k--) {
+        if (this.subviews[k]._mousemove(event))
           return;
       }
     } 

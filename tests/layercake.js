@@ -1,7 +1,7 @@
 module("LayerCake.js");
 
-test("get_root returns a singleton", function() {
-  same(LayerCake.get_root(canvas),LayerCake.get_root(canvas),"get_root is a singleton");
+test("bake returns a singleton", function() {
+  same(LayerCake.bake(canvas),LayerCake.bake(canvas),"bake is a singleton");
 });
 
 test("next_view_id increments after root is created", function() {

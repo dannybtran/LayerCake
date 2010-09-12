@@ -1,0 +1,170 @@
+Format: 1.5
+
+
+# You can add a title and sub-title to your menu like this:
+# Title: [project name]
+# SubTitle: [subtitle]
+
+# You can add a footer to your documentation like this:
+# Footer: [text]
+# If you want to add a copyright notice, this would be the place to do it.
+
+# You can add a timestamp to your documentation like one of these:
+# Timestamp: Generated on month day, year
+# Timestamp: Updated mm/dd/yyyy
+# Timestamp: Last updated mon day
+#
+#   m     - One or two digit month.  January is "1"
+#   mm    - Always two digit month.  January is "01"
+#   mon   - Short month word.  January is "Jan"
+#   month - Long month word.  January is "January"
+#   d     - One or two digit day.  1 is "1"
+#   dd    - Always two digit day.  1 is "01"
+#   day   - Day with letter extension.  1 is "1st"
+#   yy    - Two digit year.  2006 is "06"
+#   yyyy  - Four digit year.  2006 is "2006"
+#   year  - Four digit year.  2006 is "2006"
+
+
+# --------------------------------------------------------------------------
+# 
+# Cut and paste the lines below to change the order in which your files
+# appear on the menu.  Don't worry about adding or removing files, Natural
+# Docs will take care of that.
+# 
+# You can further organize the menu by grouping the entries.  Add a
+# "Group: [name] {" line to start a group, and add a "}" to end it.
+# 
+# You can add text and web links to the menu by adding "Text: [text]" and
+# "Link: [name] ([URL])" lines, respectively.
+# 
+# The formatting and comments are auto-generated, so don't worry about
+# neatness when editing the file.  Natural Docs will clean it up the next
+# time it is run.  When working with groups, just deal with the braces and
+# forget about the indentation and comments.
+# 
+# --------------------------------------------------------------------------
+
+
+File: Circle  (CircleView.js)
+File: LayerCake  (LayerCake.js)
+File: Point  (Point.js)
+File: RectView  (RectView.js)
+File: RootView  (RootView.js)
+File: View  (View.js)
+
+Group: NaturalDocs  {
+
+   File: Browser Testing  (NaturalDocs/Info/HTMLTestCases.pm)
+   File: Language Notes  (NaturalDocs/Info/Languages.txt)
+   File: License  (NaturalDocs/License.txt)
+
+   Group: Modules  {
+
+      File: BinaryFile  (NaturalDocs/Modules/NaturalDocs/BinaryFile.pm)
+      File: Builder  (NaturalDocs/Modules/NaturalDocs/Builder.pm)
+
+      Group: Builder  {
+
+         File: Base  (NaturalDocs/Modules/NaturalDocs/Builder/Base.pm)
+         File: FramedHTML  (NaturalDocs/Modules/NaturalDocs/Builder/FramedHTML.pm)
+         File: HTML  (NaturalDocs/Modules/NaturalDocs/Builder/HTML.pm)
+         File: HTMLBase  (NaturalDocs/Modules/NaturalDocs/Builder/HTMLBase.pm)
+         }  # Group: Builder
+
+      File: ClassHierarchy  (NaturalDocs/Modules/NaturalDocs/ClassHierarchy.pm)
+      File: ClassHierarchy::Class  (NaturalDocs/Modules/NaturalDocs/ClassHierarchy/Class.pm)
+      File: ClassHierarchy::File  (NaturalDocs/Modules/NaturalDocs/ClassHierarchy/File.pm)
+      File: ConfigFile  (NaturalDocs/Modules/NaturalDocs/ConfigFile.pm)
+      File: Constants  (NaturalDocs/Modules/NaturalDocs/Constants.pm)
+      File: DefineMembers  (NaturalDocs/Modules/NaturalDocs/DefineMembers.pm)
+      File: Error  (NaturalDocs/Modules/NaturalDocs/Error.pm)
+      File: File  (NaturalDocs/Modules/NaturalDocs/File.pm)
+      File: ImageReferenceTable  (NaturalDocs/Modules/NaturalDocs/ImageReferenceTable.pm)
+      File: ImageReferenceTable::Reference  (NaturalDocs/Modules/NaturalDocs/ImageReferenceTable/Reference.pm)
+      File: ImageReferenceTable::String  (NaturalDocs/Modules/NaturalDocs/ImageReferenceTable/String.pm)
+      File: Languages  (NaturalDocs/Modules/NaturalDocs/Languages.pm)
+
+      Group: Languages  {
+
+         File: ActionScript  (NaturalDocs/Modules/NaturalDocs/Languages/ActionScript.pm)
+         File: Ada  (NaturalDocs/Modules/NaturalDocs/Languages/Ada.pm)
+         File: Advanced  (NaturalDocs/Modules/NaturalDocs/Languages/Advanced.pm)
+         File: Advanced::Scope  (NaturalDocs/Modules/NaturalDocs/Languages/Advanced/Scope.pm)
+         File: Advanced::ScopeChange  (NaturalDocs/Modules/NaturalDocs/Languages/Advanced/ScopeChange.pm)
+         File: Base  (NaturalDocs/Modules/NaturalDocs/Languages/Base.pm)
+         File: CSharp  (NaturalDocs/Modules/NaturalDocs/Languages/CSharp.pm)
+         File: Pascal  (NaturalDocs/Modules/NaturalDocs/Languages/Pascal.pm)
+         File: Perl  (NaturalDocs/Modules/NaturalDocs/Languages/Perl.pm)
+         File: PLSQL  (NaturalDocs/Modules/NaturalDocs/Languages/PLSQL.pm)
+         File: Prototype  (NaturalDocs/Modules/NaturalDocs/Languages/Prototype.pm)
+         File: Prototype::Parameter  (NaturalDocs/Modules/NaturalDocs/Languages/Prototype/Parameter.pm)
+         File: Simple  (NaturalDocs/Modules/NaturalDocs/Languages/Simple.pm)
+         File: Tcl  (NaturalDocs/Modules/NaturalDocs/Languages/Tcl.pm)
+         }  # Group: Languages
+
+      File: LineReader  (NaturalDocs/Modules/NaturalDocs/LineReader.pm)
+      File: Menu  (NaturalDocs/Modules/NaturalDocs/Menu.pm)
+      File: Menu::Entry  (NaturalDocs/Modules/NaturalDocs/Menu/Entry.pm)
+      File: NDMarkup  (NaturalDocs/Modules/NaturalDocs/NDMarkup.pm)
+      File: Parser  (NaturalDocs/Modules/NaturalDocs/Parser.pm)
+
+      Group: Parser  {
+
+         File: JavaDoc  (NaturalDocs/Modules/NaturalDocs/Parser/JavaDoc.pm)
+         File: Native  (NaturalDocs/Modules/NaturalDocs/Parser/Native.pm)
+         File: ParsedTopic  (NaturalDocs/Modules/NaturalDocs/Parser/ParsedTopic.pm)
+         }  # Group: Parser
+
+      File: Project  (NaturalDocs/Modules/NaturalDocs/Project.pm)
+      File: Project::ImageFile  (NaturalDocs/Modules/NaturalDocs/Project/ImageFile.pm)
+      File: Project::SourceFile  (NaturalDocs/Modules/NaturalDocs/Project/SourceFile.pm)
+      File: ReferenceString  (NaturalDocs/Modules/NaturalDocs/ReferenceString.pm)
+      File: Settings  (NaturalDocs/Modules/NaturalDocs/Settings.pm)
+      File: Settings::BuildTarget  (NaturalDocs/Modules/NaturalDocs/Settings/BuildTarget.pm)
+      File: SourceDB  (NaturalDocs/Modules/NaturalDocs/SourceDB.pm)
+
+      Group: SourceDB  {
+
+         File: Extension  (NaturalDocs/Modules/NaturalDocs/SourceDB/Extension.pm)
+         File: File  (NaturalDocs/Modules/NaturalDocs/SourceDB/File.pm)
+         File: Item  (NaturalDocs/Modules/NaturalDocs/SourceDB/Item.pm)
+         File: ItemDefinition  (NaturalDocs/Modules/NaturalDocs/SourceDB/ItemDefinition.pm)
+         File: WatchedFileDefinitions  (NaturalDocs/Modules/NaturalDocs/SourceDB/WatchedFileDefinitions.pm)
+         }  # Group: SourceDB
+
+      File: StatusMessage  (NaturalDocs/Modules/NaturalDocs/StatusMessage.pm)
+      File: SymbolString  (NaturalDocs/Modules/NaturalDocs/SymbolString.pm)
+      File: SymbolTable  (NaturalDocs/Modules/NaturalDocs/SymbolTable.pm)
+
+      Group: SymbolTable  {
+
+         File: File  (NaturalDocs/Modules/NaturalDocs/SymbolTable/File.pm)
+         File: IndexElement  (NaturalDocs/Modules/NaturalDocs/SymbolTable/IndexElement.pm)
+         File: Reference  (NaturalDocs/Modules/NaturalDocs/SymbolTable/Reference.pm)
+         File: ReferenceTarget  (NaturalDocs/Modules/NaturalDocs/SymbolTable/ReferenceTarget.pm)
+         File: Symbol  (NaturalDocs/Modules/NaturalDocs/SymbolTable/Symbol.pm)
+         File: SymbolDefinition  (NaturalDocs/Modules/NaturalDocs/SymbolTable/SymbolDefinition.pm)
+         }  # Group: SymbolTable
+
+      File: Topics  (NaturalDocs/Modules/NaturalDocs/Topics.pm)
+      File: Topics::Type  (NaturalDocs/Modules/NaturalDocs/Topics/Type.pm)
+      File: Version  (NaturalDocs/Modules/NaturalDocs/Version.pm)
+      }  # Group: Modules
+
+   File: NaturalDocs  (NaturalDocs/NaturalDocs)
+   File: SearchPanel  (NaturalDocs/JavaScript/NaturalDocs.js)
+   File: XGen.pl  (NaturalDocs/Help/documenting/XGen.pl)
+   }  # Group: NaturalDocs
+
+Group: Index  {
+
+   Index: Everything
+   Class Index: Classes
+   Function Index: Functions
+   Variable Index: Variables
+   Constant Index: Constants
+   File Index: Files
+   Type Index: Types
+   }  # Group: Index
+

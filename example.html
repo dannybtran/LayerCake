@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LayerCake Example</title>
+  <style>
+    html,body { padding: 0px; margin: 0px; width: 100%; background-color: #EEE; }
+    div       { margin-left: auto; margin-right: auto; width: 800px; }
+    canvas    { background-color: #FFF; }
+  </style>  
+</head>
+<body>
+
+<div>
+<canvas height="500px" width="800px" id="main">
+  Please use a browser that supports canvas.
+</canvas>
+</div>
+
+<!--<script src="layercake-current.min.js"></script>-->
+
+<script src="src/Class.js"></script>
+<script src="src/LayerCake.js"></script>
+<script src="src/Point.js"></script>
+<script src="src/View.js"></script>
+<script src="src/RootView.js"></script>
+<script src="src/RectView.js"></script>
+<script src="src/CircleView.js"></script>
+<script src="src/ImageView.js"></script>
+
+<script>
+  (function() { 
+    var root = LayerCake.bake('main');
+  
+    var r1 = new RectView(10,10,100,100);
+    r1.draggable = true;
+    r1.strokeStyle = '#0A7';
+    r1.fillStyle = '#AAA';
+    r1.lineWidth = 2;
+    r1.click(function(event) {
+      alert('You clicked square #' + this.id + '!');
+    });
+    
+    var r2 = new RectView(10,10,30,30);
+    r2.fillStyle = '#F00';
+    r2.strokeStyle = 'transparent';
+    
+    r2.click(function(event) {
+      alert('You clicked square #' + this.id + '!');
+    });    
+    r2.mouseover(function(event) {
+      this.fillStyle = '#FF0';
+      this.rootview.draw();
+    });
+    r2.mouseout(function(event) {
+      this.fillStyle = '#F00';
+      this.rootview.draw();
+    });
+    
+    var r3 = new RectView(60,10,30,30);
+    r3.fillStyle = '#0F0';
+    r3.strokeStyle = 'transparent';  
+    r3.click(function(event) {
+      if (this.superview.removeSubview(r4)) {
+        this.rootview.draw();        
+        alert('You removed the blue square.');
+      } else
+        alert('The blue square is gone.');
+    });
+    
+    var r4 = new RectView(10,60,30,30);
+    r4.fillStyle = '#00F';
+    r4.strokeStyle = 'transparent';
+    r4.click(function(event) {
+      alert('You clicked square #' + this.id + '!');
+    });
+  
+    var r5 = new RectView(60,60,30,30);
+    r5.fillStyle = '#FF0';
+    r5.mousemove(function(event) {
+      this.fillStyle = '#' + (Math.round(Math.random()*16777215)).toString(16);
+      this.strokeStyle = '#' + (Math.round(Math.random()*16777215)).toString(16);      
+      this.rootview.draw();
+    });
+  
+    r1.addSubview(r2);
+    r1.addSubview(r3);  
+    r1.addSubview(r4);    
+    r1.addSubview(r5);     
+    root.addSubview(r1);
+    
+    var c1 = new CircleView(300,100,50);
+    c1.draggable = true;
+    c1.strokeStyle = '#00F';
+    c1.click(function(event) {
+      this.fillStyle = '#' + (Math.round(Math.random()*16777215)).toString(16);
+      this.rootview.draw();
+    });
+    root.addSubview(c1);
+    
+    var i1 = new ImageView("images/buzzjessie.jpg",100,100,130,98);
+    i1.draggable = true;
+    /*i1.click(function(event) {
+      alert('you clicked an image ' + this.image.src)
+    });*/
+    
+    var r6 = new RectView(10,10,30,30);
+    r6.fillStyle = '#0FF';
+    r6.strokeStyle = 'transparent';
+    r6.click(function(event) {
+      alert('You clicked square #' + this.id + '!');      
+    });
+
+    i1.addSubview(r6);
+    root.addSubview(i1);
+
+    root.draw();
+  })();
+</script>
+</body>
+</html>
