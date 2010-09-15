@@ -25,8 +25,9 @@ Draw the rootview:
     root.draw();
 
 For more detail see the examples:  
-[Example 1](http://dannytran.me/layercake/example1.html)  
-[Example 2](http://dannytran.me/layercake/example2.html)  
+[Example 1](http://dannytran.me/layercake/example1.html): Simple example with one object.
+[Example 2](http://dannytran.me/layercake/example2.html): Example with multiple nested objects.
+[Breakout](http://dannytran.me/layercake/breakout.html): Brick Breaker game example.
 
 For documentation:  
 [Documentation](http://dannytran.me/layercake/dox/)  

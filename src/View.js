@@ -98,6 +98,9 @@ var View = Class.extend({
     */
     this.isMouseDown = false;
     
+    this.lockHorizontalDrag = false;
+    this.lockVerticalDrag = false;
+    
     this._dragOrigin;
     this._dragPoint;
     this._mouseDownOrigin;
@@ -218,7 +221,10 @@ var View = Class.extend({
     
     if (this.isDragging) {
       var delta = new Point(event.clientX - this._dragPoint.x , event.clientY - this._dragPoint.y);
-      this.origin = new Point(this._dragOrigin.x + delta.x , this._dragOrigin.y + delta.y);
+      this.origin = new Point(
+        (!this.lockHorizontalDrag) ? this._dragOrigin.x + delta.x : this.origin.x, 
+        (!this.lockVerticalDrag)   ? this._dragOrigin.y + delta.y : this.origin.y
+      );
       this.rootview.draw();
       return true;
     }

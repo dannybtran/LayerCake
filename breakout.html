@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Breakout: LayerCake Example</title>
+  <style>
+    html,body { padding: 0px; margin: 0px; width: 100%; background-color: #EEE; }
+    div       { margin-left: auto; margin-right: auto; width: 800px; }
+    canvas    { background-color: #FFF; }
+  </style>  
+</head>
+<body>
+
+<div>
+  Drag the paddle to start the game.
+<canvas height="500px" width="800px" id="main">
+  Please use a browser that supports canvas.
+</canvas>
+</div>
+
+<script src="layercake-current.min.js"></script>
+
+<script>
+  (function() { 
+
+    var BlockView = RectView.extend({
+      init : function(durability,x,y,width,height) {
+        this._super(x,y,width,height);
+        this.strokeStyle = "#333";
+        this.lineWidth = 2;
+        this.durability = durability;
+        this.setDurabilityColor();      
+        this.edges = [
+          [ new Point(x,y) ,              new Point(x+width,y) ],
+          [ new Point(x+width,y+height) , new Point(x, y+height) ],
+          [ new Point(x+width,y) ,        new Point(x+width,y+height) ],          
+          [ new Point(x, y+height) ,      new Point(x,y) ]
+        ]
+      },
+      destroy : function() {
+        this.durability--;
+        this.setDurabilityColor();
+        if(this.durability == 0)
+          return true;
+      },
+      setDurabilityColor : function() {
+        switch(this.durability) {
+          case 2:
+            this.fillStyle = '#900';
+            break;
+          case 1:
+            this.fillStyle = '#A77';          
+            break;
+          default:
+            this.visible = false;
+            break;
+        }                
+      }
+    });
+    
+    var BallView = CircleView.extend({
+      init : function(x,y,radius) {
+        this._super(x,y,radius);
+        this.reset();
+        this.gameRunning = false;
+        setInterval(
+          (function(self) { return function() { self.position(); } })(this)
+        ,16);
+      },
+      start : function() {
+        if(this.gameRunning) return;
+        this.velocity = new Point(
+          Math.round(Math.random()*16) - 8,
+          -8
+        );
+        this.gameRunning = true;        
+      },
+      reset : function() {
+        this.origin = new Point(400,250);
+        this.velocity = new Point(0,0);
+        this.gameRunning = false;
+      },
+      position : function() {
+        this.checkCollisions();
+        this.origin.x += this.velocity.x;
+        this.origin.y += this.velocity.y;
+        this.rootview.draw();
+      },
+      checkCollisions : function() {
+        this.collidedWithBlockEdge();
+        this.reactToLineCollision([new Point(0,0), new Point(0,500)]);
+        this.reactToLineCollision([new Point(800,0), new Point(800,500)]);  
+        this.reactToLineCollision([new Point(0,0), new Point(800,0)]);              
+        this.reactToBarCollision();
+        this.reactToFail();
+      },
+      reactToBarCollision : function() {
+        if(!this.collidedWithLine([BAR.origin,new Point(BAR.origin.x+BAR.bounds.width,BAR.origin.y)])) return;
+        var barCenterX = BAR.origin.x + BAR.bounds.width/2;
+        var deltaX = (this.origin.x - barCenterX)/BAR.bounds.width;
+        this.velocity.x = 2 * deltaX * this.velocity.y;
+        this.velocity.y = -this.velocity.y;                          
+      },
+      reactToFail : function() {
+        if (this.collidedWithLine([new Point(0,500), new Point(800,500)]) > 0)
+          this.reset();        
+      },
+      reactToLineCollision : function(l) {
+        var result = this.collidedWithLine(l);
+        if (result == 1)
+          this.velocity.y = -this.velocity.y;          
+        else if (result == 2)
+          this.velocity.x = -this.velocity.x;   
+        return result;     
+      },
+      collidedWithBlockEdge : function () {
+        if (BLOCKS.length == 0) { this.reset(); return; }
+        for(var k in BLOCKS) {
+          for(var kk in BLOCKS[k].edges) {         
+            if(BLOCKS[k] && this.reactToLineCollision(BLOCKS[k].edges[kk])) {
+              if(BLOCKS[k].destroy())
+                BLOCKS.splice(k,1);
+            }
+          }
+        }
+      },
+      collidedWithLine : function(edge) {
+        var seg_v = edge[1].subtract(edge[0]);
+        var proj = this.origin.subtract(edge[0]).dot(seg_v.divide(seg_v.mag()));
+        
+        if (proj < 0) var closest = edge[0];
+        else if (proj > seg_v.mag()) var closest = edge[1];
+        else var closest = seg_v.divide(seg_v.mag()).multiply(proj).add(edge[0]); 
+        
+        if (this.origin.subtract(closest).mag() < this.radius && this.origin.subtract(closest).mag() > 0) {
+          if (edge[0].y == edge[1].y) 
+            return 1; // horizontal
+          else
+            return 2; // vertical
+        }   
+        
+        return false;     
+      }
+    });
+    
+    var BarView = RectView.extend({
+      init : function (x,y,width,height) {
+        this._super(x,y,width,height);
+      }
+    });
+
+    var BLOCK_WIDTH = 99;
+    var BLOCK_HEIGHT = 18;
+    var BLOCK_BORDER = 2;
+    var BLOCKS = [];
+    var ROOT = LayerCake.bake('main');    
+        
+    for(var y = 0; y < 4; y++) {
+      for(var x = 0; x < 8; x++) {
+        var block = new BlockView(
+          Math.ceil(Math.random()*2),
+          x*(BLOCK_WIDTH + BLOCK_BORDER/2) + 1,
+          y*(BLOCK_HEIGHT + BLOCK_BORDER/2) + 1,
+          BLOCK_WIDTH,
+          BLOCK_HEIGHT
+        );
+        BLOCKS.push(block);
+        ROOT.addSubview(block);
+      }
+    }
+    
+    var CIRCLE = new BallView(400,250,10);
+    CIRCLE.fillStyle = '#000';
+    CIRCLE.strokeStyle = '#555';
+    CIRCLE.lineWidth = 4;
+    ROOT.addSubview(CIRCLE); 
+    
+    var BAR = new BarView(300,450,200,25);
+    BAR.fillStyle = '#007';
+    BAR.strokeStyle = '#005';    
+    BAR.lineWidth = 4;
+    BAR.draggable = true;
+    BAR.lockVerticalDrag = true;
+    BAR.mousedown(function(event) {
+      CIRCLE.start();
+    });    
+    ROOT.addSubview(BAR);
+    
+    ROOT.draw();
+  })();
+</script>
+</body>
+</html>
